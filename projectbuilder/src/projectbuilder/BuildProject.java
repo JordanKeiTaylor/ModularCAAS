@@ -24,13 +24,14 @@ public class BuildProject {
 			File[] packages = schemaFile.listFiles(File::isDirectory);
 			for(File pkg :  packages){
 				BuildProject.TransferSchemaFiles(pkg);
+				BuildProject.TransferWorkerDirectory(pkg);
 			}
 		} catch(Exception e){
 			System.out.println("Error:" + e);
 		}
 	}
 	
-	public static void TransferSchemaFiles(File dir){		
+	private static void TransferSchemaFiles(File dir){		
 		try {
 			String currDir = new java.io.File( "." ).getCanonicalPath().replaceAll("/projectbuilder", "");
 			System.out.println("Writing");
@@ -44,11 +45,23 @@ public class BuildProject {
 		}
 	}
 	
-	private void TransferWorkerDirectory(){
+	private static void TransferWorkerDirectory(File dir){
+		try {
+			String currDir = new java.io.File( "." ).getCanonicalPath().replaceAll("/projectbuilder", "");
+			String destDir = currDir + "/build/workers";			
+			String workerPath = dir.getAbsolutePath() + "/worker";
+			FileUtils.copyDirectory(new File(workerPath), new File(destDir));
+		} catch(Exception e){
+			System.out.println("Error:" + e);
+		}
 		
 	}
 	
 	private void TransferSnapshotSchema(){
+		
+	}
+	
+	private void concatDefaultLaunchJSON(){
 		
 	}
 
