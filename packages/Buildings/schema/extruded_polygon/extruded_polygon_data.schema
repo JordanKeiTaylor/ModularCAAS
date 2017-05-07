@@ -1,0 +1,12 @@
+package improbable.extruded_polygon;
+
+// The properties of an extruded polygon that can be rendered in a client
+component ExtrudedPolygonData {
+  option queryable = true;
+
+  id = 600;
+  // Vectors describing a polygon as offsets from a central position
+  list<Vector3f> polygon_base_vertices = 1;
+  // The height that the polygon should be extruded to
+  float height = 2;
+}
