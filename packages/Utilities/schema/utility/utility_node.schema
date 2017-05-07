@@ -1,0 +1,13 @@
+package improbable.utility;
+
+type UtilityDetails {
+  bool active = 1;
+  bool source = 2;
+  bool sink = 3;
+}
+
+component UtilityNode {
+  id = 550;
+  map<string,UtilityDetails> utilities = 1;
+  bool node_active = 2;
+}

@@ -1,0 +1,23 @@
+package improbable.utility;
+
+component UtilityEdge {
+  id = 551;
+
+  string title = 1;
+  int32 flow = 2;
+  Vector3f a_offset = 3;
+  Vector3f b_offset = 4;
+  EntityId a_entity_id = 5;
+  EntityId b_entity_id = 6;
+  bool enabled = 7;
+
+  command SetEnabledResponse set_enabled(SetEnabledRequest);
+}
+
+type SetEnabledRequest {
+  bool should_be_enabled = 1;
+}
+
+type SetEnabledResponse {
+  bool is_now_enabled = 1;
+}
