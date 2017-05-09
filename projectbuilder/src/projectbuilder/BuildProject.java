@@ -6,18 +6,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.FalseFileFilter;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
-import java.io.File;
-import org.apache.commons.io.filefilter.TrueFileFilter;
 
 
 public class BuildProject {
@@ -26,8 +18,6 @@ public class BuildProject {
 			String currDir = new java.io.File( "." ).getCanonicalPath().replaceAll("/projectbuilder", "");
 			System.out.println("currDir:" + currDir);
 			String pathToPackages = currDir + "/packages";
-			String pathToBuild = currDir + "/build";
-			String pathToSchemaBuilder = pathToBuild + "/schema";
 			Boolean alreadyAdded = false;
 			
 			System.out.println("Writing project");
@@ -44,6 +34,7 @@ public class BuildProject {
 					BuildProject.TransferWorkerYamlFile(pkg);
 					BuildProject.TransferPreprocessorYamlFile(pkg);
 					BuildProject.TransferPreprocessorConfigYamlFile(pkg);
+					BuildProject.AppendToPrefabsList(pkg);
 				}
 			}
 			
@@ -152,6 +143,36 @@ public class BuildProject {
 		}
 	}
 	
+	private static void AppendToPrefabsList(File dir){
+		try {
+			String currDir = new java.io.File( "." ).getCanonicalPath().replaceAll("/projectbuilder", "");		
+			String existingYamlPath = currDir + "/build/workers/SnapshotGenerator/worker/src/main/scala/core/settings/SnapshotPrefabs.scala";
+			String toAppendPath = dir.getAbsolutePath() + "/prefabsAdded.yaml";
+			//System.out.println("Character to remove");
+		    List<String> existingConfig = Files.readAllLines(Paths.get(existingYamlPath), StandardCharsets.UTF_8);
+		    existingConfig.remove(existingConfig.size() - 1);
+		    
+		    List<String> linesToAppend = Files.readAllLines(Paths.get(toAppendPath), StandardCharsets.UTF_8);
+		    
+		    linesToAppend = linesToAppend.stream()
+		            .map(elt -> "  val " + elt + " = Value(13)")
+		            .collect(Collectors.toList());
+		    linesToAppend.add("}");
+		    System.out.println("Appended");
+		    System.out.println(linesToAppend);
+		    existingConfig.addAll(linesToAppend);
+
+		    existingConfig = existingConfig.stream()
+		    	    .filter(str -> !str.trim().isEmpty()).collect(Collectors.toList());
+		    
+		    Path file = Paths.get(existingYamlPath);
+		    Files.write(file, existingConfig, Charset.forName("UTF-8"));
+
+		} catch(Exception e){
+			System.out.println("Error:" + e);
+		}
+	}
+	
 	
 	
 	private static void TransferPreprocessorYamlFile(File dir){
@@ -246,49 +267,5 @@ public class BuildProject {
 		
 	}
 	
-	private void concatDefaultLaunchJSON(){
-		Gson gson = new Gson();
-	}
 
-}
-
-class workerConfigJSON{
-	private String name;
-	private Integer numEntitiesPerWorker;
-}
-
-class LaunchJSON{
-	private String template;
-	
-	class legacyFlagObject {
-		private String name;
-		private String value;
-	}
-	
-	class dimensionsObject {
-		private Integer x_meters;
-		private Integer z_meters;
-	}
-	
-	class SnapshotObject{
-		private Integer snapshot_write_period_seconds;
-	}
-	
-	class loadBalacingObject{
-		
-	}
-	
-	class worldObject{
-		private Integer chunkEdgeLengthMeters;
-		private Integer streaming_query_interval;
-		private legacyFlagObject[] legacy_flags;
-		private legacyFlagObject[] legacy_javaparams;
-		private dimensionsObject dimensions;
-		private SnapshotObject snapshots;
-	}
-	
-	class autoHexGridObject{
-		
-	}
-	
 }
