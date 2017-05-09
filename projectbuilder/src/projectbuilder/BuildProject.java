@@ -43,6 +43,7 @@ public class BuildProject {
 				if(!alreadyAdded){
 					BuildProject.TransferWorkerYamlFile(pkg);
 					BuildProject.TransferPreprocessorYamlFile(pkg);
+					BuildProject.TransferPreprocessorConfigYamlFile(pkg);
 				}
 			}
 			
@@ -128,6 +129,30 @@ public class BuildProject {
 			System.out.println("Error:" + e);
 		}
 	}
+	
+	private static void TransferPreprocessorConfigYamlFile(File dir){
+		try {
+			String currDir = new java.io.File( "." ).getCanonicalPath().replaceAll("/projectbuilder", "");		
+			String existingYamlPath = currDir + "/build/workers/SnapshotGenerator/worker/src/main/scala/preprocessors/packageConfigs.yaml";
+			String toAppendPath = dir.getAbsolutePath() + "/SnapshotGenerator/config.yaml";
+			//System.out.println("Character to remove");
+		    List<String> existingConfig = Files.readAllLines(Paths.get(existingYamlPath), StandardCharsets.UTF_8);
+		    System.out.println(existingConfig);
+		    List<String> linesToAppend = Files.readAllLines(Paths.get(toAppendPath), StandardCharsets.UTF_8);
+		    existingConfig.addAll(linesToAppend);
+
+		    existingConfig = existingConfig.stream()
+		    	    .filter(str -> !str.trim().isEmpty()).collect(Collectors.toList());
+		    
+		    Path file = Paths.get(existingYamlPath);
+		    Files.write(file, existingConfig, Charset.forName("UTF-8"));
+
+		} catch(Exception e){
+			System.out.println("Error:" + e);
+		}
+	}
+	
+	
 	
 	private static void TransferPreprocessorYamlFile(File dir){
 		try {
