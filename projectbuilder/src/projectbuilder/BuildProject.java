@@ -6,8 +6,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FalseFileFilter;
@@ -26,23 +28,57 @@ public class BuildProject {
 			String pathToPackages = currDir + "/packages";
 			String pathToBuild = currDir + "/build";
 			String pathToSchemaBuilder = pathToBuild + "/schema";
+			Boolean alreadyAdded = false;
 			
 			System.out.println("Writing project");
 			System.out.println("to packages" + pathToPackages);
 			File schemaFile = new File(pathToPackages);
 			File[] packages = schemaFile.listFiles(File::isDirectory);
 			for(File pkg :  packages){
+				alreadyAdded = BuildProject.UpdatePackageList(pkg);
 				BuildProject.TransferSchemaFiles(pkg);
 				BuildProject.TransferWorkerDirectory(pkg);
 				BuildProject.TransferSnapshotSchema(pkg);
 				BuildProject.TransferUnityAssets(pkg);
-				BuildProject.TransferWorkerYamlFile(pkg);
-				BuildProject.TransferPreprocessorYamlFile(pkg);
+				if(!alreadyAdded){
+					BuildProject.TransferWorkerYamlFile(pkg);
+					BuildProject.TransferPreprocessorYamlFile(pkg);
+				}
 			}
 			
 		} catch(Exception e){
 			System.out.println("Error:" + e);
 		}
+	}
+	
+	private static Boolean UpdatePackageList(File dir){
+		Boolean alreadyAdded = false;
+		
+		try {
+			String currDir = new java.io.File( "." ).getCanonicalPath().replaceAll("/projectbuilder", "");
+			String[] packageNameFinder = dir.getAbsolutePath().split("/");
+			String packageName = packageNameFinder[packageNameFinder.length - 1];
+			
+			String existingYamlPath = currDir + "/build/currentPackages.yaml";
+			
+		    List<String> existingConfig = Files.readAllLines(Paths.get(existingYamlPath), StandardCharsets.UTF_8);
+		    
+		    
+		    
+		    if(existingConfig.contains(packageName)){
+		    	System.out.println("Didnt add package " + packageName + " to package list because it was already there");
+		    	alreadyAdded = true;
+		    } else {
+		    	existingConfig.add(packageName);
+		    }
+		  
+		    Path file = Paths.get(existingYamlPath);
+		    Files.write(file, existingConfig, Charset.forName("UTF-8"));
+			
+		} catch(Exception e){
+			System.out.println("Error:" + e);
+		}
+		return alreadyAdded;
 	}
 	
 
@@ -76,11 +112,15 @@ public class BuildProject {
 			String currDir = new java.io.File( "." ).getCanonicalPath().replaceAll("/projectbuilder", "");		
 			String existingYamlPath = currDir + "/build/workers/SnapshotGenerator/worker/src/main/scala/workers/workers.yaml";
 			String toAppendPath = dir.getAbsolutePath() + "/worker/config.yaml";
-			
+			//System.out.println("Character to remove");
 		    List<String> existingConfig = Files.readAllLines(Paths.get(existingYamlPath), StandardCharsets.UTF_8);
+		    //System.out.println(existingConfig.get(existingConfig.size()-1).trim().isEmpty());
 		    List<String> linesToAppend = Files.readAllLines(Paths.get(toAppendPath), StandardCharsets.UTF_8);
 		    existingConfig.addAll(linesToAppend);
 
+		    existingConfig = existingConfig.stream()
+		    	    .filter(str -> !str.trim().isEmpty()).collect(Collectors.toList());
+		    
 		    Path file = Paths.get(existingYamlPath);
 		    Files.write(file, existingConfig, Charset.forName("UTF-8"));
 
@@ -98,6 +138,9 @@ public class BuildProject {
 		    List<String> existingConfig = Files.readAllLines(Paths.get(existingYamlPath), StandardCharsets.UTF_8);
 		    List<String> linesToAppend = Files.readAllLines(Paths.get(toAppendPath), StandardCharsets.UTF_8);
 		    existingConfig.addAll(linesToAppend);
+		    
+		    existingConfig = existingConfig.stream()
+		    	    .filter(str -> !str.trim().isEmpty()).collect(Collectors.toList());
 
 		    Path file = Paths.get(existingYamlPath);
 		    Files.write(file, existingConfig, Charset.forName("UTF-8"));
