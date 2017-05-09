@@ -1,0 +1,25 @@
+UnityClient: 
+  name: "client"
+  worker_attribute_name: "visual"
+  numEntitiesPerWorker: "5000"
+UnityWorker: 
+  name: "physics"
+  worker_attribute_name: "physics"
+  numEntitiesPerWorker: "250"
+MobileTelecoms: 
+  name: "mobile"
+  worker_attribute_name: "mobile_telecoms"
+  numEntitiesPerWorker: "400"
+RoadNetworkRouting: 
+  name: "roadNetworkRouting"
+  worker_attribute_name: "road_routing"
+  numEntitiesPerWorker: "5000"
+PlayerSpawner: 
+  name: "playerSpawner"
+  worker_attribute_name: "player_spawner"
+  numEntitiesPerWorker: "5000"
+PopulationMigration: 
+  name: "migration"
+  worker_attribute_name: "population_migration"
+  numEntitiesPerWorker: "5000"
+

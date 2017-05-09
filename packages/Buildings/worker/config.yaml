@@ -1,0 +1,5 @@
+Example:
+  name: "ex"
+  worker_attribute_name: "visual"
+  numEntitiesPerWorker: "5000"
+

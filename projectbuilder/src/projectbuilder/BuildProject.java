@@ -1,7 +1,13 @@
 package projectbuilder;
 
 import java.io.File;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FalseFileFilter;
@@ -10,6 +16,7 @@ import com.google.gson.GsonBuilder;
 
 import java.io.File;
 import org.apache.commons.io.filefilter.TrueFileFilter;
+
 
 public class BuildProject {
 	public static void main(String[] args){
@@ -29,7 +36,10 @@ public class BuildProject {
 				BuildProject.TransferWorkerDirectory(pkg);
 				BuildProject.TransferSnapshotSchema(pkg);
 				BuildProject.TransferUnityAssets(pkg);
+				BuildProject.TransferWorkerYamlFile(pkg);
+				BuildProject.TransferPreprocessorYamlFile(pkg);
 			}
+			
 		} catch(Exception e){
 			System.out.println("Error:" + e);
 		}
@@ -61,6 +71,44 @@ public class BuildProject {
 		}
 	}
 	
+	private static void TransferWorkerYamlFile(File dir){
+		try {
+			String currDir = new java.io.File( "." ).getCanonicalPath().replaceAll("/projectbuilder", "");		
+			String existingYamlPath = currDir + "/build/workers/SnapshotGenerator/worker/src/main/scala/workers/workers.yaml";
+			String toAppendPath = dir.getAbsolutePath() + "/worker/config.yaml";
+			
+		    List<String> existingConfig = Files.readAllLines(Paths.get(existingYamlPath), StandardCharsets.UTF_8);
+		    List<String> linesToAppend = Files.readAllLines(Paths.get(toAppendPath), StandardCharsets.UTF_8);
+		    existingConfig.addAll(linesToAppend);
+
+		    Path file = Paths.get(existingYamlPath);
+		    Files.write(file, existingConfig, Charset.forName("UTF-8"));
+
+		} catch(Exception e){
+			System.out.println("Error:" + e);
+		}
+	}
+	
+	private static void TransferPreprocessorYamlFile(File dir){
+		try {
+			String currDir = new java.io.File( "." ).getCanonicalPath().replaceAll("/projectbuilder", "");	
+			String existingYamlPath = currDir + "/build/workers/SnapshotGenerator/worker/src/main/scala/preprocessors/PreprocessorList.yaml";
+			String toAppendPath = dir.getAbsolutePath() + "/SnapshotGenerator/preprocessor.yaml";
+			
+		    List<String> existingConfig = Files.readAllLines(Paths.get(existingYamlPath), StandardCharsets.UTF_8);
+		    List<String> linesToAppend = Files.readAllLines(Paths.get(toAppendPath), StandardCharsets.UTF_8);
+		    existingConfig.addAll(linesToAppend);
+
+		    Path file = Paths.get(existingYamlPath);
+		    Files.write(file, existingConfig, Charset.forName("UTF-8"));
+
+		} catch(Exception e){
+			System.out.println("Error:" + e);
+		}
+	}
+	
+	
+	
 	private static void TransferSnapshotSchema(File dir){
 		try {
 			String currDir = new java.io.File( "." ).getCanonicalPath().replaceAll("/projectbuilder", "");
@@ -72,6 +120,7 @@ public class BuildProject {
 		}
 		
 	}
+	
 	
 	private static void TransferUnityAssets(File dir){
 		TransferUnityEntityPrefabs(dir);
